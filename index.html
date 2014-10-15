@@ -307,8 +307,8 @@
 		}
 	$.get('community_assets.geojson', function(data){
 		
-		data = JSON.parse(data);
-		console.log(data)
+		// data = JSON.parse(data);
+		console.log(data);
 		geojson = L.geoJson(data, {
 			pointToLayer: function (feature, latlng) {
 				if (feature.properties.Asset == 'School')
