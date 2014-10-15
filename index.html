@@ -1,0 +1,325 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Dispersion | ARC</title>
+	<meta charset="utf-8" />
+	<link rel="shortcut icon" sizes="196x196" href="arc_logo196.png">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.2.0/css/bootstrap.min.css"/>
+	<link rel="stylesheet" href="http://leafletjs.com/dist/leaflet.css" />
+	<link href="http://maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
+	<style>
+		.legend {
+			line-height: 18px;
+			color: #555;
+		    }
+		    .legend i {
+			width: 18px;
+			height: 18px;
+			float: left;
+			margin-right: 8px;
+			/*opacity: 0.7;*/
+		    }
+		    .legend-label {
+		    	/*line-height: 20px;*/
+		    }
+		    .info {
+			    padding: 6px 8px;
+			    background: white;
+			    background: rgba(255,255,255,1);
+			    box-shadow: 0 0 15px rgba(0,0,0,0.2);
+			    border-radius: 5px;
+			}
+			.info h4 {
+			    margin: 0 0 5px;
+			    color: #000;
+			}
+			body {
+	            padding: 0;
+	            margin: 0;
+	        }
+	        html, body, #map {
+	            height: 100%;
+	            width: 100%;
+	        }
+	        #panel {
+	        	/*opacity:.6;*/
+	        	/*margin: 6px 8px;*/
+	        	position: fixed;
+	        	background-color:white;
+	        	z-index: 1000;
+	        	box-shadow: 0 0 15px rgba(0,0,0,0.2);
+			    border-radius: 5px;
+
+	        }
+	        .switches {
+	        	margin-top:15px;
+			    text-align: center;
+			    width: inherit;
+			    display: inline-block;
+	        	
+	        }
+/*class="col-md-12 col-sm-12 col-xs-12"*/
+	</style>
+</head>
+<body>
+	<!-- <div id="panel" class="col-md-3 col-sm-4 col-md-offset-9 col-sm-offset-8 col-xs-12">
+		<div class="text-center">
+			<div class="switches btn-group" data-toggle="buttons">
+				<label checked type="button" id="transpo" class=" layer-switch btn active btn-default" title="Transportation Emissions">
+				<input type="radio" checked><i class="fa fa-car"></i></label>
+				<label type="button" id="res" class=" layer-switch btn  btn-default" title="Residential Emissions">
+				<input type="radio"><i class="fa fa-building"></i></label>
+				<label type="button" id="total" class=" layer-switch btn  btn-default" title="Total Emissions">
+				<input type="radio"><i class="fa fa-car"></i> + <i class="fa fa-building"></i></label>
+				
+			</div>
+			<h3 id="message"></h3>
+		</div>
+	</div> -->
+	<div id="map"></div>
+
+	<script src="http://leafletjs.com/dist/leaflet.js"></script>
+	<script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+	<script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.2.0/js/button.js"></script>
+	<script>
+
+
+
+		
+
+
+
+
+
+
+	// if(!console) {console={}; console.log = function(){};}
+	$('.btn').button()
+	$('.layer-switch').click(function(){
+		// console.log(this.title);
+		if(currentLayer !== 'Transportation Emissions'){
+			if (this.title == 'Transportation Emissions'){
+				map.removeLayer(baseLayers['Residential Emissions']);
+				map.removeLayer(baseLayers['Total Emissions'])
+			}
+			else if (Object.keys(map._layers).length == 3){
+				map.removeLayer(baseLayers[currentLayer]);
+			}
+		}
+		if((currentLayer == 'Residential Emissions' && this.title == 'Total Emissions')){
+			map.addLayer(baseLayers[this.title]);
+		}
+		else if(this.title !== 'Transportation Emissions'){
+			map.addLayer(baseLayers[this.title]);
+		}
+
+		addLegend(this.title)
+		currentLayer = this.title;
+	})
+		function getColor(d, type) {
+            if (type=='Residential Emissions') {
+                            return d > 58.077 ? '#A63F4D' :
+                   d > 45.393  ? '#ED9761' :
+                   d > 38  ? '#386D82' :
+                   d > 33.689  ? '#4D9974' :
+                   d > 0   ? '#82AD31' :
+                                              '#FFEDA0';
+            }
+            else if (type=='Transportation Emissions') {
+                            return d > 16.173 ? '#A63F4D' :
+                   d > 10.157  ? '#ED9761' :
+                   d > 6.321  ? '#386D82' :
+                   d > 3.874  ? '#4D9974' :
+                   d > 0   ? '#82AD31' :
+                                              '#FFEDA0';
+            }
+            else if (type=='Total Emissions') {
+                            return d > 65.858 ? '#A63F4D' :
+                   d > 52.177  ? '#ED9761' :
+                   d > 43.051  ? '#386D82' :
+                   d > 36.962  ? '#4D9974' :
+                   d > 0   ? '#82AD31' :
+                                              '#FFEDA0';
+			}
+			
+		    }
+				    
+	    var mbAttr = 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, ' +
+				'<a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, ' +
+				'Imagery © <a href="http://mapbox.com">Mapbox</a>',
+			mbUrl = 'https://{s}.tiles.mapbox.com/v3/{id}/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoiYXRscmVnaW9uYWwiLCJhIjoiQmZ6d2tyMCJ9.oENm3NSf--qHrimdm9Vvdw';
+
+	    
+		var transpo  = L.tileLayer(mbUrl, {id: 'atlregional.8aa6c15f',   attribution: mbAttr}),
+		    res  = L.tileLayer(mbUrl, {id: 'atlregional.fr3075eg',   attribution: mbAttr}),
+		    total  = L.tileLayer(mbUrl, {id: 'atlregional.ghgtotal',   attribution: mbAttr});
+
+		var currentLayer = "Transportation Emissions";
+		// $('#transpo').addClass('active');
+
+		var baseLayers = {
+			"Transportation Emissions": transpo,
+			"Residential Emissions": res,
+			"Total Emissions": total
+		};
+		var map = L.map('map', {
+			center: [33.89435731090067,-84.37637329101562],
+			zoom: 9,
+			layers: [baseLayers[currentLayer]],
+			zoomControl: false,
+			minZoom: 9,
+			maxBounds: L.latLngBounds([32.8, -86.2], [34.7, -82.4])
+		});
+		new L.Control.Zoom({ position: 'bottomleft' }).addTo(map);
+		var overlays = {
+			
+		};
+		var legend;
+		addLegend('Transportation Emissions')
+		// L.control.layers(baseLayers).addTo(map);
+		map.on('baselayerchange', baseLayerChange);
+		
+		function baseLayerChange(e){
+		    console.log(e);
+		    addLegend(e.name);
+		}
+		function addLegend(type){
+			if (typeof legend !== 'undefined') {
+				map.removeControl(legend);
+			}
+			$('#message').html(type)
+			legend = L.control({position: 'bottomright'});
+
+			legend.onAdd = function (map) {
+		
+		    var div = L.DomUtil.create('div', 'info legend'),
+			grades = [],
+			title = '',
+			labels = [];
+			if (type=='Residential Emissions') {
+                grades = [26.3,33.7,38.0,45.4,58.1,79.8];
+                title = 'Annual Residential Metric Tons of CO<sub>2</sub> per Household';
+            }
+            else if (type=='Transportation Emissions') {
+                grades = [0,3.9,6.3,10.2,16.2,25.6];
+                title = 'Annual PM2.5 (micrograms per cubic meter)';
+            }
+            else if (type=='Total Emissions') {
+                grades = [27.8,36.9,43.1,52.2,65.9,86.4];
+                title = 'Total Annual Metric Tons of CO<sub>2</sub> per Household';
+            }
+			div.innerHTML += '<h4>'+title+'</h4>'
+			// loop through our density intervals and generate a label with a colored square for each interval
+			for (var i = 0; i < grades.length - 1; i++) {
+				if (grades[i] == 0){
+					div.innerHTML +=
+					'<i style="background:' + getColor(grades[i] + 1, type) + '"></i> < ' +
+					grades[i+1] + '<br>';
+				}
+				else{
+				    div.innerHTML +=
+					'<i style="background:' + getColor(grades[i] + 1, type) + '"></i><span class="legend-label">' +
+					grades[i] + (i + 1 !== grades.length ? '&ndash;' + grades[i + 1] + '</span><br>' : '&ndash;' + grades[i + 1] + '</span>');
+				}
+			}
+		    
+			return div;
+		}
+		    
+		legend.addTo(map);
+
+
+
+
+		// control that shows state info on hover
+		var info = L.control();
+
+		info.onAdd = function (map) {
+			this._div = L.DomUtil.create('div', 'info');
+			this.update();
+			return this._div;
+		};
+
+		info.update = function (props) {
+			this._div.innerHTML = '<h4>Community Assets</h4>' +  (props ?
+				'<b>' + props.Asset + '</b><br />' + props.Name
+				: 'Hover over a school or hospital');
+		};
+
+		info.addTo(map);
+
+		function style(feature) {
+			return {
+				weight: 2,
+				opacity: 1,
+				color: 'white',
+				dashArray: '3',
+				fillOpacity: 0.7,
+				fillColor: getColor(feature.properties.density)
+			};
+		}
+		var hospital = L.icon({
+		    iconUrl: 'hospital.png',
+		    iconSize: [30, 30],
+        iconAnchor: [16, 37],
+        popupAnchor: [0, -28]
+
+		});
+		var school = L.icon({
+		    iconUrl: 'backpack.png',
+		    iconSize: [30, 30],
+        iconAnchor: [16, 37],
+        popupAnchor: [0, -28]
+		});
+
+		var geojson;
+		function highlightFeature(e) {
+			var layer = e.target;
+
+			// layer.setStyle({
+			// 	weight: 5,
+			// 	color: '#666',
+			// 	dashArray: '',
+			// 	fillOpacity: 0.7
+			// });
+
+			// if (!L.Browser.ie && !L.Browser.opera) {
+			// 	layer.bringToFront();
+			// }
+			console.log(layer.feature.properties);	
+			info.update(layer.feature.properties);
+		}
+		function resetHighlight(e) {
+			geojson.resetStyle(e.target);
+			info.update();
+		}
+
+		function zoomToFeature(e) {
+			map.fitBounds(e.target.getBounds());
+		}
+		function onEachFeature(feature, layer) {
+			layer.on({
+				mouseover: highlightFeature,
+				mouseout: resetHighlight,
+				click: zoomToFeature
+			});
+		}
+	$.get('community_assets.geojson', function(data){
+		
+		data = JSON.parse(data);
+		console.log(data)
+		geojson = L.geoJson(data, {
+			pointToLayer: function (feature, latlng) {
+				if (feature.properties.Asset == 'School')
+					return L.marker(latlng, {icon: school});
+				else
+					return L.marker(latlng, {icon: hospital});
+			},
+			onEachFeature: onEachFeature
+		}).addTo(map);
+	})
+		}
+	</script>
+</body>
+</html>
