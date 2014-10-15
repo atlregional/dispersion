@@ -31,8 +31,8 @@
 			top:5px;
 		}
 		.hospitalcluster {
-			width: 40px;
-			height: 40px;
+			width: 30px;
+			height: 30px;
 			background: url("hospital.png");
 			text-align: center;
 			color:white;
@@ -230,7 +230,7 @@
 
 	var hospital = L.icon({
 	    iconUrl: 'hospital.png',
-	    iconSize: [30, 30]
+	    iconSize: [25, 25]
 
 	});
 	var school = L.icon({
@@ -319,6 +319,53 @@
 		}
 	})
 
+	addLegend('Transportation Emissions')
+
+	function addLegend(type){
+			if (typeof legend !== 'undefined') {
+				map.removeControl(legend);
+			}
+			$('#message').html(type)
+			legend = L.control({position: 'bottomright'});
+
+			legend.onAdd = function (map) {
+		
+		    var div = L.DomUtil.create('div', 'info legend'),
+			grades = [],
+			title = '',
+			labels = [];
+			if (type=='Residential Emissions') {
+                grades = [26.3,33.7,38.0,45.4,58.1,79.8];
+                title = 'Annual Residential Metric Tons of CO<sub>2</sub> per Household';
+            }
+            else if (type=='Transportation Emissions') {
+                grades = [0,3.9,6.3,10.2,16.2,25.6];
+                title = 'Annual PM2.5 (micrograms per cubic meter)';
+            }
+            else if (type=='Total Emissions') {
+                grades = [27.8,36.9,43.1,52.2,65.9,86.4];
+                title = 'Total Annual Metric Tons of CO<sub>2</sub> per Household';
+            }
+			div.innerHTML += '<h4>'+title+'</h4>'
+			// loop through our density intervals and generate a label with a colored square for each interval
+			for (var i = 0; i < grades.length - 1; i++) {
+				if (grades[i] == 0){
+					div.innerHTML +=
+					'<i style="background:' + getColor(grades[i] + 1, type) + '"></i> < ' +
+					grades[i+1] + '<br>';
+				}
+				else{
+				    div.innerHTML +=
+					'<i style="background:' + getColor(grades[i] + 1, type) + '"></i><span class="legend-label">' +
+					grades[i] + (i + 1 !== grades.length ? '&ndash;' + grades[i + 1] + '</span><br>' : '&ndash;' + grades[i + 1] + '</span>');
+				}
+			}
+		    
+			return div;
+		    };
+		    
+		    legend.addTo(map);
+		}
 	</script>
 </body>
 </html>
