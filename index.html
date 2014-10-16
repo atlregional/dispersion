@@ -96,6 +96,9 @@
 			    box-shadow: 0 0 15px rgba(0,0,0,0.2);
 			    border-radius: 5px;
 			}
+			.info i {
+				margin:0;
+			}
 			.info h4 {
 			    margin: 0 0 5px;
 			    color: #000;
@@ -201,11 +204,18 @@
                                           '#FFEDA0';
         }
         else if (type=='Transportation Emissions') {
-                        return d > 16.173 ? '#A63F4D' :
-               d > 10.157  ? '#ED9761' :
-               d > 6.321  ? '#386D82' :
-               d > 3.874  ? '#4D9974' :
-               d > 0   ? '#82AD31' :
+                        return d>12 ?'#FF2200':
+							d>11 ?'#FF5500':
+							d>10 ?'#FF8000':
+							d>9 ?'#FFA200':
+							d>8 ?'#FFC800':
+							d>7 ?'#FFEE00':
+							d>6 ?'#E4F000':
+							d>5 ?'#B3CF00':
+							d>4 ?'#86B300':
+							d>3 ?'#5A9600':
+							d>2 ?'#337A00':
+							d>0  ?'#006100':
                                           '#FFEDA0';
         }
         else if (type=='Total Emissions') {
@@ -389,8 +399,8 @@
                 title = 'Annual Residential Metric Tons of CO<sub>2</sub> per Household';
             }
             else if (type=='Transportation Emissions') {
-                grades = [0,3.9,6.3,10.2,16.2,25.6];
-                title = 'Roadway Sources of Annual Average PM<sub>2.5</sub> (&micro;g/m<super>3</super>)';
+                grades = [2,3,4,5,6,7,8,9,10,11,12,13];
+                title = 'Roadway Sources of Annual Average PM<sub>2.5</sub> (&micro;g/m<sup>3</sup>)';
             }
             else if (type=='Total Emissions') {
                 grades = [27.8,36.9,43.1,52.2,65.9,86.4];
@@ -399,18 +409,24 @@
 			div.innerHTML += '<h4>'+title+'</h4>'
 			// loop through our density intervals and generate a label with a colored square for each interval
 			for (var i = 0; i < grades.length - 1; i++) {
-				if (grades[i] == 0){
+				if (grades[i] == 2){
 					div.innerHTML +=
-					'<i style="background:' + getColor(grades[i] + 1, type) + '"></i> < ' +
-					grades[i+1] + '<br>';
+					'<i style="background:' + getColor(grades[i] + 1, type) + '"></i>';
+				}
+				else if (grades[i] == 7){
+					div.innerHTML +=
+					'<i style="background:' + getColor(grades[i] + 1, type) + '"></i>';
+				}
+				else if (grades[i] == 12){
+					div.innerHTML +=
+					'<i style="background:' + getColor(grades[i] + 1, type) + '"></i>';
 				}
 				else{
 				    div.innerHTML +=
-					'<i style="background:' + getColor(grades[i] + 1, type) + '"></i><span class="legend-label">' +
-					grades[i] + (i + 1 !== grades.length ? '&ndash;' + grades[i + 1] + '</span><br>' : '&ndash;' + grades[i + 1] + '</span>');
+					'<i style="background:' + getColor(grades[i] + 1, type) + '"></i>';
 				}
 			}
-		    
+		    div.innerHTML += '<br>Low &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;     Medium  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;     High'
 			return div;
 		    };
 		    
