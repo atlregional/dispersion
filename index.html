@@ -427,7 +427,7 @@
       console.log(data);
       transitGeo = L.geoJson(data, {
         pointToLayer: function (feature, latlng) {
-          return L.marker(latlng, {icon: hospital});
+          return L.marker(latlng, {});
         },
         onEachFeature: onEachFeature
       });
