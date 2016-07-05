@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -11,6 +12,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.5/leaflet-src.js"></script>
   <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
   <script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.2.0/js/button.js"></script>
+
   <style>
     .schoolcluster {
       /*width: 40px;
@@ -151,7 +153,6 @@
 
 
   <script>
-
   /*
    Leaflet.markercluster, Provides Beautiful Animated Marker Clustering functionality for Leaflet, a JS library for interactive maps.
    https://github.com/Leaflet/Leaflet.markercluster
@@ -229,10 +230,12 @@
 
       }
 
+
     var mbAttr = 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, ' +
       '<a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, ' +
       'Imagery © <a href="http://mapbox.com">Mapbox</a>',
     mbUrl = 'https://{s}.tiles.mapbox.com/v3/{id}/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoiYXRscmVnaW9uYWwiLCJhIjoiQmZ6d2tyMCJ9.oENm3NSf--qHrimdm9Vvdw';
+
 
 
   var transpo  = L.tileLayer(mbUrl, {id: 'atlregional.8aa6c15f',   attribution: mbAttr}),
@@ -258,8 +261,7 @@
   });
   new L.Control.Zoom({ position: 'bottomleft' }).addTo(map);
   var overlays = {
-
-  };
+    };
 
 
 
@@ -276,7 +278,10 @@
         <input type="checkbox"><img src="backpack.png" height=14/></label> \
         <label type="button" id="hospital" onclick="toggleLayer(this)" class=" layer-switch btn active btn-default" title="Hospitals"> \
         <input  type="checkbox"><img src="hospital.png" height=14/></label> \
+        <label type="button" id="transit" onclick="toggleLayer(this)" class=" layer-switch btn active btn-default" title="Transit"> \
+        <input type="checkbox"><img src="transit.png" height=14/></label> \
       </div><br /><br />'
+
   info.update = function (props) {
     this._div.innerHTML = '<h4 class="pull-right">Community Assets</h4>' + buttons +   (props ?
       '<span class="pull-right"><b>' + props.Asset + '</b><br />' + props.Name + '</span>'
@@ -295,7 +300,13 @@
       iconSize: [30, 30]
   });
 
-  var schoolGeo, hospitalGeo;
+  var transit = L.icon({
+      color: 'white',
+      opacity:.6
+  });
+
+
+  var schoolGeo, hospitalGeo, transitGeo;
   function highlightFeature(e) {
     console.log(e)
     if (e.target._map._container.id === "map"){
@@ -361,9 +372,21 @@
       //Disable all of the defaults:
       //spiderfyOnMaxZoom: false, showCoverageOnHover: false, zoomToBoundsOnClick: false
     });
+  var rails = new L.markerClusterGroup({
+      maxClusterRadius: 120,
+      iconCreateFunction: function (cluster) {
+          return L.divIcon({ html: '<span class="railstext">'+cluster.longName()+'</span>', className: 'railscluster', iconSize: L.point(40, 40) });
+      },
+      disableClusteringAtZoom: 13, showCoverageOnHover: false,
+      maxClusterRadius: 70
+      //Disable all of the defaults:
+      //spiderfyOnMaxZoom: false, showCoverageOnHover: false, zoomToBoundsOnClick: false
+    });
+
   var geoLayers = {
     "school" : schools,
-    "hospital" : hospitals
+    "hospital" : hospitals,
+    "transit" : transit
   }
   $.ajax({
     url: 'schools.geojson',
@@ -402,6 +425,25 @@
       map.addLayer(hospitals);
     }
   })
+  $.ajax({
+    url: 'transit.geojson',
+    type: 'GET',
+    dataType: 'json',
+    success: function(data){
+      console.log(data);
+      transitGeo = L.geoJson(data, {
+        pointToLayer: function (feature, latlng) {
+          return L.marker(latlng, {icon: hospital});
+        },
+        onEachFeature: onEachFeature
+      });
+
+      rails.addLayer(transitGeo);
+      map.addLayer(rails);
+    }
+  })
+
+
 
   addLegend('Transportation Emissions')
 
@@ -456,7 +498,9 @@
 
         legend.addTo(map);
     }
+
   </script>
 </body>
 </html>
+
 
