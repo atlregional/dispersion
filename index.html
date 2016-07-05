@@ -297,156 +297,155 @@
         <label type="button" id="transit" onclick="toggleLayer(this)" class=" layer-switch btn active btn-default" title="Transit"> \
         <input type="checkbox"><img src="transit.png" height=14/></label> \
       </div><br /><br />'
-	info.update = function (props) {
-		this._div.innerHTML = '<h4 class="pull-right">Community Assets</h4>' + buttons +   (props ?
-			'<span class="pull-right"><b>' + props.Asset + '</b><br />' + props.Name + '</span>'
-			: '<span class="pull-right">Hover over a school or hospital</span>');
-	};
 
-	info.addTo(map);
+  info.update = function (props) {
+    this._div.innerHTML = '<h4 class="pull-right">Community Assets</h4>' + buttons +   (props ?
+      '<span class="pull-right"><b>' + props.Asset + '</b><br />' + props.Name + '</span>'
+      : '<span class="pull-right">Hover over a school or hospital</span>');
+  };
 
-	var hospital = L.icon({
-	    iconUrl: 'hospital.png',
-	    iconSize: [25, 25]
+  info.addTo(map);
 
-	});
-	var school = L.icon({
-	    iconUrl: 'backpack.png',
-	    iconSize: [30, 30]
-	});
+  var hospital = L.icon({
+      iconUrl: 'hospital.png',
+      iconSize: [25, 25]
 
-	var transit = L.icon({
-	    iconUrl: 'transit.png',
-	    iconSize: [30, 30]
-	});
+  });
+  var school = L.icon({
+      iconUrl: 'backpack.png',
+      iconSize: [30, 30]
+  });
+  // var transit = L.icon({
+  //     iconUrl: 'transit.png',
+  //     iconSize: [30, 30]
+  // });
 
-	var schoolGeo, hospitalGeo, transitGeo;
-	function highlightFeature(e) {
-		console.log(e)
-		if (e.target._map._container.id === "map"){
-			console.log('test')
-			target = e.target;
-			if (!target){
-				return;
-			}
-			else{
-				var layer = e.target;
-				// click = false;
-				// e.click = false
-				// layer.setStyle({
-				// 	weight: layer.options.weight,
-				// 	color: '#444',
-				// 	dashArray: '',
-				// 	opacity: 0.7
-				// });
-				//
-				// if (!L.Browser.ie && !L.Browser.opera) {
-				// 	layer.bringToFront();
-				// }
-				// eHov = e
-				// if (ePrev != null && eHov != null && eHov.target == ePrev.target){
-				// 	ePrev.click = false;
-				// }
-				info.update(layer.feature.properties);
-			}
-		}
-	}
-	function resetHighlight(e) {
-		// geojson.resetStyle(e.target);
-		info.update();
-	}
+  var schoolGeo, hospitalGeo, transitGeo;
+  function highlightFeature(e) {
+    console.log(e)
+    if (e.target._map._container.id === "map"){
+      console.log('test')
+      target = e.target;
+      if (!target){
+        return;
+      }
+      else{
+        var layer = e.target;
+        // click = false;
+        // e.click = false
+        // layer.setStyle({
+        //  weight: layer.options.weight,
+        //  color: '#444',
+        //  dashArray: '',
+        //  opacity: 0.7
+        // });
+        //
+        // if (!L.Browser.ie && !L.Browser.opera) {
+        //  layer.bringToFront();
+        // }
+        // eHov = e
+        // if (ePrev != null && eHov != null && eHov.target == ePrev.target){
+        //  ePrev.click = false;
+        // }
+        info.update(layer.feature.properties);
+      }
+    }
+  }
+  function resetHighlight(e) {
+    // geojson.resetStyle(e.target);
+    info.update();
+  }
 
-	function zoomToFeature(e) {
-		map.fitBounds(e.target.getBounds());
-	}
-	function onEachFeature(feature, layer) {
-		layer.on({
-			mouseover: highlightFeature,
-			mouseout: resetHighlight,
-			click: zoomToFeature
-		});
-	}
-	var schools = new L.markerClusterGroup({
-			maxClusterRadius: 120,
-			iconCreateFunction: function (cluster) {
-				return L.divIcon({ html: '<span class="schooltext">'+cluster.getChildCount()+'</span>', className: 'schoolcluster', iconSize: L.point(40, 40) });
-			},
-			disableClusteringAtZoom: 13, showCoverageOnHover: false,
+  function zoomToFeature(e) {
+    map.fitBounds(e.target.getBounds());
+  }
+  function onEachFeature(feature, layer) {
+    layer.on({
+      mouseover: highlightFeature,
+      mouseout: resetHighlight,
+      click: zoomToFeature
+    });
+  }
+  var schools = new L.markerClusterGroup({
+      maxClusterRadius: 120,
+      iconCreateFunction: function (cluster) {
+        return L.divIcon({ html: '<span class="schooltext">'+cluster.getChildCount()+'</span>', className: 'schoolcluster', iconSize: L.point(40, 40) });
+      },
+      disableClusteringAtZoom: 13, showCoverageOnHover: false,
       maxClusterRadius: 70
-			//Disable all of the defaults:
-			//spiderfyOnMaxZoom: false, showCoverageOnHover: false, zoomToBoundsOnClick: false
-		});
-	var hospitals = new L.markerClusterGroup({
-			maxClusterRadius: 120,
-			iconCreateFunction: function (cluster) {
-					return L.divIcon({ html: '<span class="hospitaltext">'+cluster.getChildCount()+'</span>', className: 'hospitalcluster', iconSize: L.point(40, 40) });
-			},
-			disableClusteringAtZoom: 13, showCoverageOnHover: false,
+      //Disable all of the defaults:
+      //spiderfyOnMaxZoom: false, showCoverageOnHover: false, zoomToBoundsOnClick: false
+    });
+  var hospitals = new L.markerClusterGroup({
+      maxClusterRadius: 120,
+      iconCreateFunction: function (cluster) {
+          return L.divIcon({ html: '<span class="hospitaltext">'+cluster.getChildCount()+'</span>', className: 'hospitalcluster', iconSize: L.point(40, 40) });
+      },
+      disableClusteringAtZoom: 13, showCoverageOnHover: false,
       maxClusterRadius: 70
-			//Disable all of the defaults:
-			//spiderfyOnMaxZoom: false, showCoverageOnHover: false, zoomToBoundsOnClick: false
-		});
-	var geoLayers = {
-		"school" : schools,
-		"hospital" : hospitals,
-		"transit" : transit
-	}
-	$.ajax({
-		url: 'schools.geojson',
-		type: 'GET',
-		dataType: 'json',
-		success: function(data){
-			console.log(data);
-			schoolGeo = L.geoJson(data, {
-				pointToLayer: function (feature, latlng) {
-					return L.marker(latlng, {icon: school});
-				},
-				onEachFeature: onEachFeature
-			});
-			schools.addLayer(schoolGeo);
+      //Disable all of the defaults:
+      //spiderfyOnMaxZoom: false, showCoverageOnHover: false, zoomToBoundsOnClick: false
+    });
 
-			// hospitals.addLayer(hospitalGeo);
-			console.log('here')
-			map.addLayer(schools);
-			// map.addLayer(hospitals);
-		}
-	})
-	$.ajax({
-		url: 'hospitals.geojson',
-		type: 'GET',
-		dataType: 'json',
-		success: function(data){
-			console.log(data);
-			hospitalGeo = L.geoJson(data, {
-				pointToLayer: function (feature, latlng) {
-					return L.marker(latlng, {icon: hospital});
-				},
-				onEachFeature: onEachFeature
-			});
+  var geoLayers = {
+    "school" : schools,
+    "hospital" : hospitals,
+    "transit" : transit
+  }
+  $.ajax({
+    url: 'schools.geojson',
+    type: 'GET',
+    dataType: 'json',
+    success: function(data){
+      console.log(data);
+      schoolGeo = L.geoJson(data, {
+        pointToLayer: function (feature, latlng) {
+          return L.marker(latlng, {icon: school});
+        },
+        onEachFeature: onEachFeature
+      });
+      schools.addLayer(schoolGeo);
 
-			hospitals.addLayer(hospitalGeo);
-			map.addLayer(hospitals);
-		}
-	})
-	$.ajax({
-		url: 'MARTA_Rail_2015.geojson',
-		type: 'GET',
-		dataType: 'json',
-		success: function(data){
-			console.log(data);
-			transitGeo = L.geoJson(data, {
-				pointToLayer: function (feature, latlng) {
-					return L.marker(latlng, {icon: transit});
-				},
-				onEachFeature: onEachFeature
-			});
-			transit.addLayer(transitGeo);
+      // hospitals.addLayer(hospitalGeo);
+      console.log('here')
+      map.addLayer(schools);
+      // map.addLayer(hospitals);
+    }
+  })
+  $.ajax({
+    url: 'hospitals.geojson',
+    type: 'GET',
+    dataType: 'json',
+    success: function(data){
+      console.log(data);
+      hospitalGeo = L.geoJson(data, {
+        pointToLayer: function (feature, latlng) {
+          return L.marker(latlng, {icon: hospital});
+        },
+        onEachFeature: onEachFeature
+      });
 
-			console.log('here')
-			map.addLayer(transit);
+      hospitals.addLayer(hospitalGeo);
+      map.addLayer(hospitals);
+    }
+  })
+    $.ajax({
+    url: 'MARTA_Rail_2015.geojson',
+    type: 'GET',
+    dataType: 'json',
+    success: function(data){
+      console.log(data);
+      transitGeo = L.geoJson(data, {
+        pointToLayer: function (feature, latlng) {
+          return L.marker(latlng, {});
+        },
+        onEachFeature: onEachFeature
+      });
 
-		}
-	})
+      transit.addLayer(transitGeo);
+      map.addLayer(transit);
+    }
+  })
 
 	addLegend('Transportation Emissions')
 
