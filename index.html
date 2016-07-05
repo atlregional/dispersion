@@ -290,13 +290,13 @@
 		return this._div;
 	};
 	var buttons = '<br /><div class="pull-right switches btn-group" data-toggle="buttons"> \
-				<label type="button" id="school" onclick="toggleLayer(this)" class=" layer-switch btn active btn-default" title="Schools"> \
-				<input type="checkbox"><img src="backpack.png" height=14/></label> \
-				<label type="button" id="hospital" onclick="toggleLayer(this)" class=" layer-switch btn active btn-default" title="Hospitals"> \
-				<input  type="checkbox"><img src="hospital.png" height=14/></label> \
-				<label type="button" id="school" onclick="toggleLayer(this)" class=" layer-switch btn active btn-default" title="Transit"> \
-				<input type="checkbox"><img src="transit.png" height=14/></label> \
-			</div><br /><br />'
+        <label type="button" id="school" onclick="toggleLayer(this)" class=" layer-switch btn active btn-default" title="Schools"> \
+        <input type="checkbox"><img src="backpack.png" height=14/></label> \
+        <label type="button" id="hospital" onclick="toggleLayer(this)" class=" layer-switch btn active btn-default" title="Hospitals"> \
+        <input  type="checkbox"><img src="hospital.png" height=14/></label> \
+        <label type="button" id="transit" onclick="toggleLayer(this)" class=" layer-switch btn active btn-default" title="Transit"> \
+        <input type="checkbox"><img src="transit.png" height=14/></label> \
+      </div><br /><br />'
 	info.update = function (props) {
 		this._div.innerHTML = '<h4 class="pull-right">Community Assets</h4>' + buttons +   (props ?
 			'<span class="pull-right"><b>' + props.Asset + '</b><br />' + props.Name + '</span>'
