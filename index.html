@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html>
 <head>
@@ -300,6 +299,12 @@
       iconSize: [30, 30]
   });
 
+  var transit = L.icon({
+      iconUrl: 'transit.png',
+      iconSize: [23, 33]
+  });
+
+
   var schoolGeo, hospitalGeo, transitGeo;
   function highlightFeature(e) {
     console.log(e)
@@ -366,13 +371,13 @@
       //Disable all of the defaults:
       //spiderfyOnMaxZoom: false, showCoverageOnHover: false, zoomToBoundsOnClick: false
     });
-  var rails = new L.markerClusterGroup({
-      maxClusterRadius: 120,
+    var rails = new L.markerClusterGroup({
+      maxClusterRadius: 150,
       iconCreateFunction: function (cluster) {
-          return L.divIcon({ html: '<span class="railstext">'+cluster.longName()+'</span>', className: 'railscluster', iconSize: L.point(40, 40) });
+          return L.divIcon({ html: '<span class="transittext">'+'</span>', className: 'transitcluster', iconSize: L.point(40, 40) });
       },
-      disableClusteringAtZoom: 13, showCoverageOnHover: false,
-      maxClusterRadius: 70
+      disableClusteringAtZoom: 11, showCoverageOnHover: false,
+      maxClusterRadius: 100
       //Disable all of the defaults:
       //spiderfyOnMaxZoom: false, showCoverageOnHover: false, zoomToBoundsOnClick: false
     });
@@ -380,7 +385,7 @@
   var geoLayers = {
     "school" : schools,
     "hospital" : hospitals,
-    "transit" : transit
+    "transit" : rails
   }
   $.ajax({
     url: 'schools.geojson',
@@ -420,14 +425,14 @@
     }
   })
   $.ajax({
-    url: 'transit_line.geojson',
+    url: 'transit.geojson',
     type: 'GET',
     dataType: 'json',
     success: function(data){
       console.log(data);
       transitGeo = L.geoJson(data, {
         pointToLayer: function (feature, latlng) {
-          return L.marker(latlng, {});
+          return L.marker(latlng, {icon: transit});
         },
         onEachFeature: onEachFeature
       });
@@ -496,5 +501,6 @@
   </script>
 </body>
 </html>
+
 
 
